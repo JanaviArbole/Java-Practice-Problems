@@ -1,23 +1,46 @@
-class MultipleThreads implements Runnable
-{
-    public void run()
-    {
-        for (int i = 1; i <= 5; i++)
-        {
-            System.out.println(Thread.currentThread().getName() + ": " + i);
-        }
+class NumberThread extends Thread {
+    private String threadName;
+
+    NumberThread(String name) {
+        threadName = name;
     }
 
-    public static void main(String[] args)
-    {
-        MultipleThreads obj = new MultipleThreads();
+    public void run() {
+        for (int i = 1; i <= 5; i++) {
+            System.out.println(threadName + " : " + i);
 
-        Thread t1 = new Thread(obj, "Thread 1");
-        Thread t2 = new Thread(obj, "Thread 2");
-        Thread t3 = new Thread(obj, "Thread 3");
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                System.out.println(threadName + " interrupted");
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+    }
+}
+
+public class MultipleThreads {
+    public static void main(String[] args) {
+        NumberThread t1 = new NumberThread("Thread 1");
+        NumberThread t2 = new NumberThread("Thread 2");
+        NumberThread t3 = new NumberThread("Thread 3");
+
+        System.out.println("State before starting: " + t1.getState());
 
         t1.start();
         t2.start();
         t3.start();
+
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("State after completion: " + t1.getState());
+        System.out.println("All threads completed.");
     }
 }
